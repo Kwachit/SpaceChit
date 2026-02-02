@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Space Chit</title>
+
+<style>
+:root{
+  --bg:#0b0f1a;
+  --card:#11162a;
+  --text:#eaeaea;
+  --accent:#4f7cff;
+}
+
+body.light{
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --text:#111;
+}
+
+body.small{font-size:14px}
+body.medium{font-size:16px}
+body.large{font-size:18px}
+
+body{
+  margin:0;
+  font-family:system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+#hamburger{
+  position:fixed;
+  top:16px;
+  left:16px;
+  font-size:26px;
+  background:var(--card);
+  padding:6px 10px;
+  border-radius:10px;
+  cursor:pointer;
+  z-index:1000;
+}
+
+#sidebar{
+  position:fixed;
+  top:0;
+  left:-260px;
+  width:240px;
+  height:100%;
+  background:var(--card);
+  padding:72px 20px 20px;
+  transition:left .3s ease;
+  z-index:900;
+  overflow-y:auto;
+}
+#sidebar.open{left:0}
+
+.tag-item,.setting-item{
+  padding:8px 10px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.tag-item:hover,.setting-item:hover{
+  background:rgba(255,255,255,.08);
+}
+
+#sideOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  z-index:800;
+}
+#sideOverlay.show{display:block}
+
+header{
+  text-align:center;
+  padding:40px 20px;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+main{
+  max-width:800px;
+  margin:auto;
+  padding:20px;
+}
+
+article{
+  background:var(--card);
+  padding:18px;
+  border-radius:16px;
+  margin-bottom:16px;
+  cursor:pointer;
+}
+
+article img{
+  width:100%;
+  max-height:200px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-top:10px;
+}
+
+#loginBox,#creatorPanel{
+  display:none;
+  background:var(--card);
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:20px;
+}
+
+input,textarea,button{
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  font-size:16px;
+}
+
+button{
+  background:var(--accent);
+  color:white;
+  font-weight:bold;
+}
+.secondary{background:#666}
+.danger{background:#b23b3b}
+
+#overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  z-index:1200;
+}
+
+#popup{
+  background:var(--card);
+  max-width:700px;
+  margin:10vh auto;
+  padding:20px;
+  border-radius:18px;
+}
+
+#popupControls{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="hamburger">☰</div>
+
+<div id="sidebar">
+  <h3>Tags</h3>
+  <div class="tag-item" id="clearTags">All</div>
+  <div id="tagList"></div>
+
+  <h3>Settings</h3>
+  <div class="setting-item" id="themeToggle">🌙 Dark Mode</div>
+  <div class="setting-item" id="fontSmall">🔤 Small text</div>
+  <div class="setting-item" id="fontMedium">🔤 Medium text</div>
+  <div class="setting-item" id="fontLarge">🔤 Large text</div>
+  <div class="setting-item" id="exportPublic">📤 Export for Public</div>
+</div>
+
+<div id="sideOverlay"></div>
+
+<header id="secretHeader">
+  <h1>🚀 Space Chit</h1>
+  <p>A private space for conscious thought</p>
+</header>
+
+<main>
+
+<section id="loginBox">
+  <input type="password" id="passwordInput" placeholder="Password">
+  <button id="loginBtn">Login</button>
+</section>
+
+<section id="creatorPanel">
+  <input id="titleInput" placeholder="Post title">
+  <textarea id="contentInput" placeholder="Write your post..."></textarea>
+  <input id="tagsInput" placeholder="Tags (comma separated)">
+  <input type="file" id="imageInput" accept="image/*">
+  <input id="captionInput" placeholder="Image caption (optional)">
+  <button id="saveBtn">Save</button>
+  <button class="secondary" id="cancelEditBtn" style="display:none">Cancel Edit</button>
+  <button class="secondary" id="logoutBtn">Logout</button>
+</section>
+
+<input id="searchInput" placeholder="Search posts...">
+<div id="posts"></div>
+
+</main>
+
+<div id="overlay">
+  <div id="popup">
+    <h2 id="popupTitle"></h2>
+    <img id="popupImage" style="display:none">
+    <p id="popupContent"></p>
+    <div id="popupControls"></div>
+    <button id="closePopupBtn">Close</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+const isPublic = new URLSearchParams(location.search).get("public") === "1";
+
+/* Paste exported posts here */
+const PUBLIC_POSTS = [];
+const PASSWORD="space123";
+document.getElementById("exportPublic").addEventListener("click", () => {
+  if (!confirm("Generate public version data?")) return;
+  
+  const data = JSON.stringify(posts, null, 2);
+  const win = window.open();
+  win.document.write(`
+    <h3>Copy this and paste into PUBLIC_POSTS</h3>
+    <pre style="white-space:pre-wrap;font-family:monospace">
+${data}
+    </pre>
+    <p>Then share your site with <b>?public=1</b></p>
+  `);
+});let posts = isPublic ?
+  PUBLIC_POSTS :
+  JSON.parse(localStorage.getItem("posts")) || [];
+let filteredIds=null;
+let editId=null;
+let searchQuery="";
+let taps=0;
+
+const $=id=>document.getElementById(id);
+
+/* THEME */
+function applyTheme(){
+  const t=localStorage.getItem("theme")||"dark";
+  document.body.classList.toggle("light",t==="light");
+  $("themeToggle").textContent=t==="light"?"🌙 Dark Mode":"☀️ Light Mode";
+}
+$("themeToggle").onclick=()=>{
+  localStorage.setItem("theme",document.body.classList.contains("light")?"dark":"light");
+  applyTheme();
+};
+applyTheme();
+
+/* FONT */
+function applyFont(){
+  const f=localStorage.getItem("font")||"medium";
+  document.body.classList.remove("small","medium","large");
+  document.body.classList.add(f);
+}
+$("fontSmall").onclick=()=>{localStorage.setItem("font","small");applyFont()};
+$("fontMedium").onclick=()=>{localStorage.setItem("font","medium");applyFont()};
+$("fontLarge").onclick=()=>{localStorage.setItem("font","large");applyFont()};
+applyFont();
+
+/* EXPORT */
+$("exportPublic").onclick=()=>{
+  if(!confirm("Export posts for public sharing?"))return;
+  const data=JSON.stringify(posts,null,2);
+  const w=window.open();
+  w.document.write(`<pre style="white-space:pre-wrap;font-family:monospace">${data}</pre>`);
+};
+
+/* UTIL */
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+
+/* RENDER */
+function renderPosts(){
+  $("posts").innerHTML="";
+  let list=filteredIds?posts.filter(p=>filteredIds.includes(p.id)):posts;
+  if(searchQuery){
+    const q=searchQuery.toLowerCase();
+    list=list.filter(p=>p.title.toLowerCase().includes(q)||p.content.toLowerCase().includes(q));
+  }
+  list=[...list].sort((a,b)=>(b.pinned===true)-(a.pinned===true));
+
+  list.forEach(p=>{
+    const a=document.createElement("article");
+    a.innerHTML=`<h3>${p.title}${p.pinned?" 📌":""}</h3>
+      <p style="opacity:.7">${p.content.slice(0,120)}${p.content.length>120?"…":""}</p>`;
+    if(p.image){
+      a.innerHTML+=`<img src="${p.image}">`;
+      if(p.caption)a.innerHTML+=`<div style="opacity:.7">${p.caption}</div>`;
+    }
+    a.onclick=()=>{if(!editId||confirm("Discard current edit?"))openPopup(p.id)};
+    $("posts").appendChild(a);
+  });
+  buildTags();
+}
+
+/* TAGS */
+function buildTags(){
+  $("tagList").innerHTML="";
+  const map={};
+  posts.forEach(p=>p.tags.forEach(t=>map[t]=(map[t]||0)+1));
+  Object.keys(map).sort().forEach(t=>{
+    const d=document.createElement("div");
+    d.className="tag-item";
+    d.textContent=`${t} (${map[t]})`;
+    d.onclick=()=>{filteredIds=posts.filter(p=>p.tags.includes(t)).map(p=>p.id);closeSidebar();renderPosts()};
+    $("tagList").appendChild(d);
+  });
+}
+$("clearTags").onclick=()=>{filteredIds=null;closeSidebar();renderPosts()};
+
+/* SAVE */
+$("saveBtn").onclick=()=>{
+  const title=$("titleInput").value.trim();
+  const content=$("contentInput").value.trim();
+  if(!title||!content)return alert("Fill everything");
+  const tags=$("tagsInput").value.split(",").map(t=>t.trim()).filter(Boolean);
+  const caption=$("captionInput").value.trim();
+
+  const finalize=img=>{
+    if(editId){
+      Object.assign(posts.find(p=>p.id===editId),{title,content,tags,image:img,caption});
+      editId=null;$("cancelEditBtn").style.display="none";
+    }else{
+      posts.unshift({id:uid(),title,content,tags,image:img,caption,pinned:false});
+    }
+    localStorage.setItem("posts",JSON.stringify(posts));
+    ["titleInput","contentInput","tagsInput","captionInput"].forEach(id=>$(id).value="");
+    $("imageInput").value="";
+    renderPosts();
+  };
+
+  const f=$("imageInput").files[0];
+  if(f){const r=new FileReader();r.onload=e=>finalize(e.target.result);r.readAsDataURL(f)}
+  else finalize(editId?posts.find(p=>p.id===editId).image:null);
+};
+
+/* POPUP */
+function openPopup(id){
+  const p=posts.find(x=>x.id===id);
+  $("popupTitle").textContent=p.title;
+  $("popupContent").textContent=p.content;
+  $("popupImage").style.display=p.image?"block":"none";
+  $("popupImage").src=p.image||"";
+  $("popupControls").innerHTML="";
+  if(!isPublic && localStorage.getItem("creator")==="true"){
+    ["Edit","Delete",p.pinned?"Unpin":"Pin"].forEach(t=>{
+      const b=document.createElement("button");
+      b.textContent=t;
+      if(t==="Delete")b.className="danger";
+      if(t==="Pin"||t==="Unpin")b.className="secondary";
+      b.onclick=()=>{
+        if(t==="Edit")startEdit(id);
+        if(t==="Delete")deletePost(id);
+        if(t==="Pin"||t==="Unpin"){p.pinned=!p.pinned;localStorage.setItem("posts",JSON.stringify(posts));renderPosts();closePopup();}
+      };
+      $("popupControls").appendChild(b);
+    });
+  }
+  $("overlay").style.display="block";
+}
+const closePopup=()=>$("overlay").style.display="none";
+$("closePopupBtn").onclick=closePopup;
+$("overlay").onclick=e=>{if(e.target.id==="overlay")closePopup()};
+
+/* EDIT / DELETE */
+function startEdit(id){
+  closePopup();
+  const p=posts.find(x=>x.id===id);
+  editId=id;
+  $("titleInput").value=p.title;
+  $("contentInput").value=p.content;
+  $("tagsInput").value=p.tags.join(",");
+  $("captionInput").value=p.caption||"";
+  $("cancelEditBtn").style.display="block";
+}
+function deletePost(id){
+  if(!confirm("Delete post?"))return;
+  posts=posts.filter(p=>p.id!==id);
+  localStorage.setItem("posts",JSON.stringify(posts));
+  closePopup();renderPosts();
+}
+$("cancelEditBtn").onclick=()=>{editId=null;$("cancelEditBtn").style.display="none"};
+
+/* SEARCH */
+$("searchInput").oninput=()=>{searchQuery=$("searchInput").value.trim();renderPosts()};
+
+/* SIDEBAR */
+$("hamburger").onclick=()=>{if(!editId||confirm("Discard current edit?")){$("sidebar").classList.add("open");$("sideOverlay").classList.add("show")}};
+const closeSidebar=()=>{$("sidebar").classList.remove("open");$("sideOverlay").classList.remove("show")};
+$("sideOverlay").onclick=closeSidebar;
+
+/* AUTH */
+$("secretHeader").onclick=()=>{if(++taps>=15){$("loginBox").style.display="block";taps=0}};
+$("loginBtn").onclick=()=>{if($("passwordInput").value===PASSWORD){localStorage.setItem("creator","true");$("loginBox").style.display="none";$("creatorPanel").style.display="block"}};
+$("logoutBtn").onclick=()=>{localStorage.removeItem("creator");$("creatorPanel").style.display="none"};
+
+/* INIT */
+if(localStorage.getItem("creator")==="true")$("creatorPanel").style.display="block";
+if (isPublic) {
+  document.getElementById("creatorPanel")?.remove();
+  document.getElementById("loginBox")?.remove();
+}
+renderPosts();
+
+});
+</script>
+<footer style="text-align:center; opacity:.6; font-size:14px; padding:30px 10px;">
+  For any issues or questions, email me at
+  <a href="mailto:kwachitadhyaru@gmail.com" style="color:inherit;">
+    kwachitadhyaru@gmail.com
+  </a>
+</footer>
+</body>
+</html>
