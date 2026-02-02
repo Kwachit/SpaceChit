@@ -400,9 +400,13 @@ $("logoutBtn").onclick=()=>{localStorage.removeItem("creator");$("creatorPanel")
 /* INIT */
 if(localStorage.getItem("creator")==="true")$("creatorPanel").style.display="block";
 if (isPublic) {
+  // remove editor-only UI
   document.getElementById("creatorPanel")?.remove();
-  document.getElementById("exportPublic")?.remove();
   document.getElementById("loginBox")?.remove();
+
+  // HIDE export button safely
+  const exportBtn = document.getElementById("exportPublic");
+  if (exportBtn) exportBtn.style.display = "none";
 }
 renderPosts();
 
