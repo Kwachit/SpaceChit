@@ -398,17 +398,21 @@ $("loginBtn").onclick=()=>{if($("passwordInput").value===PASSWORD){localStorage.
 $("logoutBtn").onclick=()=>{localStorage.removeItem("creator");$("creatorPanel").style.display="none"};
 
 /* INIT */
-if(localStorage.getItem("creator")==="true")$("creatorPanel").style.display="block";
+if (!isPublic && localStorage.getItem("creator") === "true") {
+  $("creatorPanel").style.display = "block";
+}
+
 if (isPublic) {
   // remove editor-only UI
-  document.getElementById("creatorPanel")?.remove();
-  document.getElementById("loginBox")?.remove();
+  $("creatorPanel")?.remove();
+  $("loginBox")?.remove();
 
-  // HIDE export button safely
-  const exportBtn = document.getElementById("exportPublic");
-  if (exportBtn) exportBtn.style.display = "none";
+  // hide export button
+  $("exportPublic") && ($("exportPublic").style.display = "none");
 }
+
 renderPosts();
+
 
 });
 </script>
