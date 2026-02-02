@@ -401,6 +401,7 @@ $("logoutBtn").onclick=()=>{localStorage.removeItem("creator");$("creatorPanel")
 if(localStorage.getItem("creator")==="true")$("creatorPanel").style.display="block";
 if (isPublic) {
   document.getElementById("creatorPanel")?.remove();
+  document.getElementById("exportPublic")?.remove();
   document.getElementById("loginBox")?.remove();
 }
 renderPosts();
