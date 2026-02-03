@@ -30,7 +30,7 @@ body{
   color:var(--text);
 }
 
-/* ===== PUBLIC MODE LOCKDOWN (BULLETPROOF) ===== */
+/* ===== PUBLIC MODE LOCKDOWN ===== */
 body.public #exportPublic,
 body.public #creatorPanel,
 body.public #loginBox{
@@ -173,7 +173,6 @@ button{
   <div class="setting-item" id="fontSmall">🔤 Small text</div>
   <div class="setting-item" id="fontMedium">🔤 Medium text</div>
   <div class="setting-item" id="fontLarge">🔤 Large text</div>
-  <div class="setting-item" id="exportPublic">📤 Export for Public</div>
 </div>
 
 <div id="sideOverlay"></div>
@@ -196,9 +195,13 @@ button{
   <input id="tagsInput" placeholder="Tags (comma separated)">
   <input type="file" id="imageInput" accept="image/*">
   <input id="captionInput" placeholder="Image caption (optional)">
+
   <button id="saveBtn">Save</button>
   <button class="secondary" id="cancelEditBtn" style="display:none">Cancel Edit</button>
   <button class="secondary" id="logoutBtn">Logout</button>
+
+  <!-- ✅ EXPORT MOVED HERE -->
+  <button class="secondary" id="exportPublic">📤 Export for Public</button>
 </section>
 
 <input id="searchInput" placeholder="Search posts...">
@@ -237,7 +240,10 @@ function applyTheme(){
   document.body.classList.toggle("light",t==="light");
   $("themeToggle").textContent=t==="light"?"🌙 Dark Mode":"☀️ Light Mode";
 }
-$("themeToggle").onclick=()=>{localStorage.setItem("theme",document.body.classList.contains("light")?"dark":"light");applyTheme()};
+$("themeToggle").onclick=()=>{
+  localStorage.setItem("theme",document.body.classList.contains("light")?"dark":"light");
+  applyTheme();
+};
 applyTheme();
 
 /* FONT */
