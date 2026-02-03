@@ -200,7 +200,6 @@ button{
   <button class="secondary" id="cancelEditBtn" style="display:none">Cancel Edit</button>
   <button class="secondary" id="logoutBtn">Logout</button>
 
-  <!-- ✅ EXPORT MOVED HERE -->
   <button class="secondary" id="exportPublic">📤 Export for Public</button>
 </section>
 
@@ -223,7 +222,10 @@ button{
 document.addEventListener("DOMContentLoaded",()=>{
 
 const isPublic = new URLSearchParams(location.search).get("public") === "1";
-if(isPublic) document.body.classList.add("public");
+if(isPublic){
+  document.body.classList.add("public");
+  localStorage.removeItem("creator"); // 🔒 HARD LOCK PUBLIC MODE
+}
 
 /* Paste exported posts here */
 const PUBLIC_POSTS = [];
@@ -260,7 +262,7 @@ applyFont();
 /* EXPORT */
 $("exportPublic").onclick=()=>{
   if(!confirm("Export posts for public sharing?"))return;
-  const data=JSON.stringify(posts,null,2);
+  const data=`const PUBLIC_POSTS = ${JSON.stringify(posts,null,2)};`;
   const w=window.open();
   w.document.write(`<pre style="white-space:pre-wrap;font-family:monospace">${data}</pre>`);
 };
