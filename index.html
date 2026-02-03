@@ -30,6 +30,13 @@ body{
   color:var(--text);
 }
 
+/* ===== PUBLIC MODE LOCKDOWN (BULLETPROOF) ===== */
+body.public #exportPublic,
+body.public #creatorPanel,
+body.public #loginBox{
+  display:none !important;
+}
+
 #hamburger{
   position:fixed;
   top:16px;
@@ -211,30 +218,16 @@ button{
 
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
+
 const isPublic = new URLSearchParams(location.search).get("public") === "1";
+if(isPublic) document.body.classList.add("public");
 
 /* Paste exported posts here */
 const PUBLIC_POSTS = [];
+
 const PASSWORD="space123";
-document.getElementById("exportPublic").addEventListener("click", () => {
-  if (!confirm("Generate public version data?")) return;
-  
-  const data = JSON.stringify(posts, null, 2);
-  const win = window.open();
-  win.document.write(`
-    <h3>Copy this and paste into PUBLIC_POSTS</h3>
-    <pre style="white-space:pre-wrap;font-family:monospace">
-${data}
-    </pre>
-    <p>Then share your site with <b>?public=1</b></p>
-  `);
-});let posts = isPublic ?
-  PUBLIC_POSTS :
-  JSON.parse(localStorage.getItem("posts")) || [];
-let filteredIds=null;
-let editId=null;
-let searchQuery="";
-let taps=0;
+let posts = isPublic ? PUBLIC_POSTS : JSON.parse(localStorage.getItem("posts")) || [];
+let filteredIds=null, editId=null, searchQuery="", taps=0;
 
 const $=id=>document.getElementById(id);
 
@@ -244,10 +237,7 @@ function applyTheme(){
   document.body.classList.toggle("light",t==="light");
   $("themeToggle").textContent=t==="light"?"🌙 Dark Mode":"☀️ Light Mode";
 }
-$("themeToggle").onclick=()=>{
-  localStorage.setItem("theme",document.body.classList.contains("light")?"dark":"light");
-  applyTheme();
-};
+$("themeToggle").onclick=()=>{localStorage.setItem("theme",document.body.classList.contains("light")?"dark":"light");applyTheme()};
 applyTheme();
 
 /* FONT */
@@ -290,7 +280,7 @@ function renderPosts(){
       a.innerHTML+=`<img src="${p.image}">`;
       if(p.caption)a.innerHTML+=`<div style="opacity:.7">${p.caption}</div>`;
     }
-    a.onclick=()=>{if(!editId||confirm("Discard current edit?"))openPopup(p.id)};
+    a.onclick=()=>openPopup(p.id);
     $("posts").appendChild(a);
   });
   buildTags();
@@ -402,25 +392,17 @@ if (!isPublic && localStorage.getItem("creator") === "true") {
   $("creatorPanel").style.display = "block";
 }
 
-if (isPublic) {
-  // remove editor-only UI
-  $("creatorPanel")?.remove();
-  $("loginBox")?.remove();
-
-  // hide export button
-  $("exportPublic") && ($("exportPublic").style.display = "none");
-}
-
 renderPosts();
-
 
 });
 </script>
+
 <footer style="text-align:center; opacity:.6; font-size:14px; padding:30px 10px;">
   For any issues or questions, email me at
   <a href="mailto:kwachitadhyaru@gmail.com" style="color:inherit;">
     kwachitadhyaru@gmail.com
   </a>
 </footer>
+
 </body>
 </html>
