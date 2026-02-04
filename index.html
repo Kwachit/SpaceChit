@@ -7,27 +7,29 @@
 
 <style>
 :root{
-  --bg:#0b0f1a;
   --card:#11162a;
   --text:#eaeaea;
   --accent:#4f7cff;
 }
 
-body.light{
-  --bg:#f4f6fb;
-  --card:#ffffff;
-  --text:#111;
-}
-
+/* FONT SIZES */
 body.small{font-size:14px}
 body.medium{font-size:16px}
 body.large{font-size:18px}
 
+/* BODY + BACKGROUND IMAGE */
 body{
   margin:0;
   font-family:system-ui,sans-serif;
-  background:var(--bg);
   color:var(--text);
+
+  background:
+    linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.65)),
+    url("background.jpg");
+
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
 }
 
 /* ===== PUBLIC MODE LOCKDOWN ===== */
@@ -83,9 +85,8 @@ body.public #loginBox{
 
 header{
   text-align:center;
-  padding:40px 20px;
+  padding:50px 20px;
   user-select:none;
-  -webkit-tap-highlight-color:transparent;
 }
 
 main{
@@ -169,7 +170,6 @@ button{
   <div id="tagList"></div>
 
   <h3>Settings</h3>
-  <div class="setting-item" id="themeToggle">🌙 Dark Mode</div>
   <div class="setting-item" id="fontSmall">🔤 Small text</div>
   <div class="setting-item" id="fontMedium">🔤 Medium text</div>
   <div class="setting-item" id="fontLarge">🔤 Large text</div>
@@ -179,7 +179,6 @@ button{
 
 <header id="secretHeader">
   <h1>🚀 Space Chit</h1>
-
   <p>A private space for conscious thought</p>
 </header>
 
@@ -200,7 +199,6 @@ button{
   <button id="saveBtn">Save</button>
   <button class="secondary" id="cancelEditBtn" style="display:none">Cancel Edit</button>
   <button class="secondary" id="logoutBtn">Logout</button>
-
   <button class="secondary" id="exportPublic">📤 Export for Public</button>
 </section>
 
@@ -225,7 +223,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 const isPublic = new URLSearchParams(location.search).get("public") === "1";
 if(isPublic){
   document.body.classList.add("public");
-  localStorage.removeItem("creator"); // 🔒 HARD LOCK PUBLIC MODE
+  localStorage.removeItem("creator");
 }
 
 /* Paste exported posts here */
@@ -236,18 +234,6 @@ let posts = isPublic ? PUBLIC_POSTS : JSON.parse(localStorage.getItem("posts")) 
 let filteredIds=null, editId=null, searchQuery="", taps=0;
 
 const $=id=>document.getElementById(id);
-
-/* THEME */
-function applyTheme(){
-  const t=localStorage.getItem("theme")||"dark";
-  document.body.classList.toggle("light",t==="light");
-  $("themeToggle").textContent=t==="light"?"🌙 Dark Mode":"☀️ Light Mode";
-}
-$("themeToggle").onclick=()=>{
-  localStorage.setItem("theme",document.body.classList.contains("light")?"dark":"light");
-  applyTheme();
-};
-applyTheme();
 
 /* FONT */
 function applyFont(){
@@ -265,7 +251,7 @@ $("exportPublic").onclick=()=>{
   if(!confirm("Export posts for public sharing?"))return;
   const data=`const PUBLIC_POSTS = ${JSON.stringify(posts,null,2)};`;
   const w=window.open();
-  w.document.write(`<pre style="white-space:pre-wrap;font-family:monospace">${data}</pre>`);
+  w.document.write(`<pre>${data}</pre>`);
 };
 
 /* UTIL */
@@ -387,7 +373,7 @@ $("cancelEditBtn").onclick=()=>{editId=null;$("cancelEditBtn").style.display="no
 $("searchInput").oninput=()=>{searchQuery=$("searchInput").value.trim();renderPosts()};
 
 /* SIDEBAR */
-$("hamburger").onclick=()=>{if(!editId||confirm("Discard current edit?")){$("sidebar").classList.add("open");$("sideOverlay").classList.add("show")}};
+$("hamburger").onclick=()=>{$("sidebar").classList.add("open");$("sideOverlay").classList.add("show")};
 const closeSidebar=()=>{$("sidebar").classList.remove("open");$("sideOverlay").classList.remove("show")};
 $("sideOverlay").onclick=closeSidebar;
 
