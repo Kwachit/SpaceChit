@@ -7,8 +7,9 @@
 
 <style>
 :root{
-  --card:#11162a;
-  --text:#eaeaea;
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --text:#111;
   --accent:#4f7cff;
 }
 
@@ -17,15 +18,18 @@ body.small{font-size:14px}
 body.medium{font-size:16px}
 body.large{font-size:18px}
 
-/* BODY + BACKGROUND IMAGE */
+/* BODY + LIGHT BACKGROUND IMAGE */
 body{
   margin:0;
   font-family:system-ui,sans-serif;
   color:var(--text);
 
   background:
-    linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.65)),
-    url("background.png");
+    linear-gradient(
+      rgba(255,255,255,0.85),
+      rgba(255,255,255,0.85)
+    ),
+    url("background.jpg");
 
   background-size:cover;
   background-position:center;
@@ -49,6 +53,7 @@ body.public #loginBox{
   border-radius:10px;
   cursor:pointer;
   z-index:1000;
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
 }
 
 #sidebar{
@@ -62,6 +67,7 @@ body.public #loginBox{
   transition:left .3s ease;
   z-index:900;
   overflow-y:auto;
+  box-shadow:4px 0 20px rgba(0,0,0,.1);
 }
 #sidebar.open{left:0}
 
@@ -71,21 +77,21 @@ body.public #loginBox{
   cursor:pointer;
 }
 .tag-item:hover,.setting-item:hover{
-  background:rgba(255,255,255,.08);
+  background:rgba(0,0,0,.06);
 }
 
 #sideOverlay{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.5);
+  background:rgba(0,0,0,.3);
   z-index:800;
 }
 #sideOverlay.show{display:block}
 
 header{
   text-align:center;
-  padding:50px 20px;
+  padding:60px 20px;
   user-select:none;
 }
 
@@ -101,11 +107,12 @@ article{
   border-radius:16px;
   margin-bottom:16px;
   cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,.08);
 }
 
 article img{
   width:100%;
-  max-height:200px;
+  max-height:220px;
   object-fit:cover;
   border-radius:12px;
   margin-top:10px;
@@ -117,6 +124,7 @@ article img{
   padding:16px;
   border-radius:16px;
   margin-bottom:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,.08);
 }
 
 input,textarea,button{
@@ -124,7 +132,7 @@ input,textarea,button{
   margin-top:10px;
   padding:10px;
   border-radius:10px;
-  border:none;
+  border:1px solid #ddd;
   font-size:16px;
 }
 
@@ -132,15 +140,16 @@ button{
   background:var(--accent);
   color:white;
   font-weight:bold;
+  border:none;
 }
-.secondary{background:#666}
-.danger{background:#b23b3b}
+.secondary{background:#777}
+.danger{background:#c0392b}
 
 #overlay{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.85);
+  background:rgba(0,0,0,.6);
   z-index:1200;
 }
 
