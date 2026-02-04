@@ -250,7 +250,19 @@ if(isPublic){
 }
 
 /* Paste exported posts here */
-const PUBLIC_POSTS = [];
+const PUBLIC_POSTS = [
+  {
+    "id": "ml82xkezdzmco46yj6",
+    "title": "About Me!!",
+    "content": "I am Kwachit Adhyaru from India. A teenage boy trying to make people aware about space discoveries, recent or popular missions and much more. I am trying to make people more engaged in the knowledge about space. if you like my content or have any suggestions about this website, email me at kwachitadhyaru@gmail.com or drop a message on instagram (kwachit_2011). Hope  you have a great time.",
+    "tags": [
+      "about me"
+    ],
+    "image": null,
+    "caption": "",
+    "pinned": true
+  }
+];
 
 const PASSWORD="space123";
 let posts = isPublic ? PUBLIC_POSTS : JSON.parse(localStorage.getItem("posts")) || [];
